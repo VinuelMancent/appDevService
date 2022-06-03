@@ -15,13 +15,13 @@ namespace WebAppService.Controllers
 
     
     [ApiController]
-    [Produces("text/json")]
     [Microsoft.AspNetCore.Mvc.Route("/mongo")]
     public class MongoDB
     {
         
         string databaseName = "Tutorials";
         private string collectionName = "Tutorials";
+        
         
         private MongoClient dbClient;
         [HttpGet]
@@ -77,12 +77,21 @@ namespace WebAppService.Controllers
             return 0;
         }
 
-        [HttpGet]
+        [HttpPost]
+        [Consumes("application/json")]
         [Microsoft.AspNetCore.Mvc.Route("/mongo/add")]
-        public void Add([FromBody] string json)
+        public int Add([FromBody] string json)
         {
             //deserialize json to object
+            byte[] newBytes = Convert.FromBase64String(json);
+            var decodedJson = BitConverter.ToString(newBytes);
+            var tutorial = JsonSerializer.Deserialize<Tutorial>(decodedJson);
+            Console.WriteLine($"Adding tutorial {tutorial}");
             //send object to database
+            var database = dbClient.GetDatabase (databaseName);
+            var tutCollection = database.GetCollection<Tutorial>(collectionName);
+            tutCollection.InsertOne(tutorial);
+            return 5;
         }
         [HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("/mongo/deleteAll")]
