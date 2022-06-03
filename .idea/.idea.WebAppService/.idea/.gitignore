@@ -1,0 +1,11 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/contentModel.xml
+/.idea.WebAppService.iml
+/projectSettingsUpdater.xml
+/modules.xml
+# Datasource local storage ignored files
+/../../../../../../../../:\Users\Vincent\RiderProjects\WebAppService\.idea\.idea.WebAppService\.idea/dataSources/
+/dataSources.local.xml
