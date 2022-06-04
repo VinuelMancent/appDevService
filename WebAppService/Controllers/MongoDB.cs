@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -8,6 +9,7 @@ using WebAppService.Model;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 
 namespace WebAppService.Controllers
 {
@@ -20,10 +22,12 @@ namespace WebAppService.Controllers
     {
         
         string databaseName = "Tutorials";
-        private string collectionName = "Tutorials";
+        string collectionName = "Tutorials";
         
         
-        private MongoClient dbClient;
+        MongoClient dbClient;
+        
+        
         [HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("/mongo/getAll")]
         public async Task<string> Get()
@@ -77,17 +81,24 @@ namespace WebAppService.Controllers
             return 0;
         }
 
-        [HttpPost]
-        [Consumes("application/json")]
+        [HttpPut]
+        [Consumes("multipart/form-data")]
         [Microsoft.AspNetCore.Mvc.Route("/mongo/add")]
-        public int Add([FromBody] string json)
+        public int Add(Tutorial json)
         {
+            
+            //var text = new StreamReader().ReadToEnd();
+            Console.WriteLine("Bin im Add");
             //deserialize json to object
-            byte[] newBytes = Convert.FromBase64String(json);
-            var decodedJson = BitConverter.ToString(newBytes);
-            var tutorial = JsonSerializer.Deserialize<Tutorial>(decodedJson);
+            //byte[] newBytes = Convert.FromBase64String(json);
+            Console.WriteLine("Bytes");
+            //var decodedJson = BitConverter.ToString(newBytes);
+            //Console.WriteLine(decodedJson);
+            //var tutorial = JsonSerializer.Deserialize<Tutorial>(json);
+            var tutorial = json;
             Console.WriteLine($"Adding tutorial {tutorial}");
             //send object to database
+            Console.WriteLine("uploading object to database");
             var database = dbClient.GetDatabase (databaseName);
             var tutCollection = database.GetCollection<Tutorial>(collectionName);
             tutCollection.InsertOne(tutorial);
