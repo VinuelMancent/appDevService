@@ -82,11 +82,11 @@ namespace WebAppService.Controllers
         }
 
         [HttpPut]
-        [Consumes("multipart/form-data")]
+        [Consumes("application/json")]
         [Microsoft.AspNetCore.Mvc.Route("/mongo/add")]
         public int Add(Tutorial json)
         {
-            
+            init();
             //var text = new StreamReader().ReadToEnd();
             Console.WriteLine("Bin im Add");
             //deserialize json to object
@@ -96,12 +96,16 @@ namespace WebAppService.Controllers
             //Console.WriteLine(decodedJson);
             //var tutorial = JsonSerializer.Deserialize<Tutorial>(json);
             var tutorial = json;
+            tutorial.id = generateID();
             Console.WriteLine($"Adding tutorial {tutorial}");
             //send object to database
             Console.WriteLine("uploading object to database");
             var database = dbClient.GetDatabase (databaseName);
+            Console.WriteLine("after database");
             var tutCollection = database.GetCollection<Tutorial>(collectionName);
+            Console.WriteLine("after collection");
             tutCollection.InsertOne(tutorial);
+            Console.WriteLine("added tut");
             return 5;
         }
         [HttpGet]
@@ -146,6 +150,13 @@ namespace WebAppService.Controllers
                 dbClient = new MongoClient(settings);
 
             }
+        }
+
+        private int generateID()
+        {
+            Random random = new Random();
+            int number = random.Next(10000, 99999);
+            return number;
         }
     }
 }
