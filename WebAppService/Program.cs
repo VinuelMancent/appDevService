@@ -13,11 +13,15 @@ namespace WebAppService
     {
         public static void Main(string[] args)
         {
+            //Console.WriteLine(Environment.GetEnvironmentVariable("PORT"));
             CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+                .ConfigureWebHostDefaults(webBuilder => { webBuilder
+                    .UseKestrel()
+                    .UseUrls(String.Concat("http://*:", Environment.GetEnvironmentVariable("PORT")))
+                    .UseStartup<Startup>(); });
     }
 }
