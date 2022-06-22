@@ -24,16 +24,21 @@ type TutorialStep struct {
 }
 
 type Service struct {
-	collection *mongo.Collection
+	client        *mongo.Client
+	clientContext context.Context
+	collection    *mongo.Collection
 }
 
 func (s *Service) GetAll(w http.ResponseWriter, req *http.Request) {
 	s.init()
+	defer s.client.Disconnect(s.clientContext)
+	fmt.Println("finished init")
 	findOptions := options.Find()
 	var result, error = s.collection.Find(context.TODO(), bson.D{{}}, findOptions)
 	if error != nil {
 		log.Fatal(error.Error())
 	}
+	fmt.Println("loaded all resources from db")
 	var results []Tutorial
 	for result.Next(context.TODO()) {
 		//Create a value into which the single document can be decoded
@@ -46,6 +51,7 @@ func (s *Service) GetAll(w http.ResponseWriter, req *http.Request) {
 		results = append(results, elem)
 
 	}
+	fmt.Println("got all results as results")
 	fmt.Println(results)
 
 	b, err := json.Marshal(results)
@@ -61,6 +67,7 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	s.init()
+	defer s.client.Disconnect(s.clientContext)
 	var tutorial Tutorial
 	var tutorialAsBytes []byte
 	insertOptions := options.InsertOne()
@@ -79,19 +86,16 @@ func (s *Service) init() {
 	var username = "AppDev"
 	var passwd = "LfD9XvAMDWJRPqwE"
 	var mongoURL = fmt.Sprintf("mongodb+srv://%s:%s@tutorialapp.bvdap.mongodb.net/?retryWrites=true&w=majority", username, passwd)
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURL))
+	s.client, _ = mongo.NewClient(options.Client().ApplyURI(mongoURL))
+
+	s.clientContext, _ = context.WithTimeout(context.Background(), 10*time.Second)
+	err := s.client.Connect(s.clientContext)
 	if err != nil {
 		log.Fatal(err)
 	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Disconnect(ctx)
 
 	var databaseName = "Tutorials"
 	var collectionName = "Tutorials"
 
-	s.collection = client.Database(databaseName).Collection(collectionName)
+	s.collection = s.client.Database(databaseName).Collection(collectionName)
 }
