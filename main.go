@@ -15,6 +15,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	http.HandleFunc("/mongo/getAll", service.ConnectToMongoDB)
+	http.HandleFunc("/mongo/getAll", service.GetAll)
+	http.HandleFunc("/mongo/Add", service.AddTutorial)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }
