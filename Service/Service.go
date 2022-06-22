@@ -57,6 +57,7 @@ func (s *Service) GetAll(w http.ResponseWriter, req *http.Request) {
 
 func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
+		fmt.Println("only accepting POST")
 		return
 	}
 	s.init()
@@ -67,8 +68,10 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 	json.Unmarshal(tutorialAsBytes, &tutorial)
 	_, err := s.collection.InsertOne(context.TODO(), tutorial, insertOptions)
 	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
+	fmt.Printf("added %s", tutorial.Title)
 	w.Write([]byte("success"))
 }
 
