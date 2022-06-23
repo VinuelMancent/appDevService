@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 )
@@ -73,6 +74,7 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 	insertOptions := options.InsertOne()
 	req.Body.Read(tutorialAsBytes)
 	json.Unmarshal(tutorialAsBytes, &tutorial)
+	tutorial.Id = s.generateID()
 	_, err := s.collection.InsertOne(context.TODO(), tutorial, insertOptions)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -98,4 +100,12 @@ func (s *Service) init() {
 	var collectionName = "Tutorials"
 
 	s.collection = s.client.Database(databaseName).Collection(collectionName)
+}
+
+func (s *Service) generateID() int {
+	number := rand.Intn(99999)
+	if number < 10000 {
+		return s.generateID()
+	}
+	return number
 }
