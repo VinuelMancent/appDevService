@@ -72,7 +72,7 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 	s.init()
 	defer s.client.Disconnect(s.clientContext)
 	var tutorial Tutorial
-	var tutorialAsBytes []byte
+	//var tutorialAsBytes []byte
 	insertOptions := options.InsertOne()
 	err := json.NewDecoder(req.Body).Decode(&tutorial)
 	if err != nil {
