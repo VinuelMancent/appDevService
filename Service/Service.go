@@ -73,10 +73,14 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 	var tutorialAsBytes []byte
 	insertOptions := options.InsertOne()
 	req.Body.Read(tutorialAsBytes)
+	fmt.Println(tutorialAsBytes)
 	fmt.Println(string(tutorialAsBytes))
 	json.Unmarshal(tutorialAsBytes, &tutorial)
 	if tutorial.Id == 0 {
 		tutorial.Id = s.generateID()
+	}
+	if tutorial.Title == "" {
+		return
 	}
 	_, err := s.collection.InsertOne(context.TODO(), tutorial, insertOptions)
 	if err != nil {
