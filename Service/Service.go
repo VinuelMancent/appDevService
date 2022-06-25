@@ -10,7 +10,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -104,13 +103,10 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Service) GetOneTutorial(w http.ResponseWriter, req *http.Request) {
-	var body []byte
-	req.Body.Read(body)
-	bodyAsString := string(body)
-	id, err := strconv.Atoi(bodyAsString)
+	var id int
+	err := json.NewDecoder(req.Body).Decode(&id)
 	if err != nil {
-		fmt.Println(err)
-		//w.Header().
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	s.init()
