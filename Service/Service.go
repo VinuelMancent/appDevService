@@ -10,6 +10,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -102,6 +103,39 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("success"))
 }
 
+func (s *Service) GetOneTutorial(w http.ResponseWriter, req *http.Request) {
+	var body []byte
+	req.Body.Read(body)
+	bodyAsString := string(body)
+	id, err := strconv.Atoi(bodyAsString)
+	if err != nil {
+		fmt.Println(err)
+		//w.Header().
+		return
+	}
+	s.init()
+	findOptions := options.Find()
+	result, err := s.collection.Find(context.TODO(), bson.D{{}}, findOptions)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	for result.Next(context.TODO()) {
+		//Create a value into which the single document can be decoded
+		var elem Tutorial
+		err := result.Decode(&elem)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if elem.Id == id {
+			b, err := json.Marshal(elem)
+			if err != nil {
+				fmt.Println(err)
+			}
+			w.Write(b)
+		}
+	}
+}
 func (s *Service) init() {
 	var username = "AppDev"
 	var passwd = "LfD9XvAMDWJRPqwE"
@@ -145,6 +179,7 @@ func (s *Service) checkIfIdIsFree(id int) bool {
 		if elem.Id == id {
 			return false
 		}
+
 	}
 	return true
 }

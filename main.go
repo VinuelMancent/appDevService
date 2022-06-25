@@ -17,5 +17,6 @@ func main() {
 	}
 	http.HandleFunc("/mongo/getAll", service.GetAll)
 	http.HandleFunc("/mongo/Add", service.AddTutorial)
+	http.HandleFunc("/mongo/getOne", service.GetOneTutorial)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }
