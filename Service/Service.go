@@ -63,6 +63,8 @@ func (s *Service) GetAll(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
+	fmt.Print("Content Type:")
+	fmt.Println(req.Header.Get("Content-Type"))
 	if req.Method != http.MethodPost {
 		fmt.Println("only accepting POST")
 		return
