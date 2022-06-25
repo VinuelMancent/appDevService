@@ -79,6 +79,10 @@ func (s *Service) AddTutorial(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	freeID := s.checkIfIdIsFree(tutorial.Id)
+	if !freeID {
+		return
+	}
 	/*req.Body.Read(tutorialAsBytes)
 	fmt.Println(tutorialAsBytes)
 	fmt.Println(string(tutorialAsBytes))
@@ -122,4 +126,25 @@ func (s *Service) generateID() int {
 		return s.generateID()
 	}
 	return number
+}
+
+func (s *Service) checkIfIdIsFree(id int) bool {
+	s.init()
+	findOptions := options.Find()
+	var result, error = s.collection.Find(context.TODO(), bson.D{{}}, findOptions)
+	if error != nil {
+		log.Fatal(error.Error())
+	}
+	for result.Next(context.TODO()) {
+		//Create a value into which the single document can be decoded
+		var elem Tutorial
+		err := result.Decode(&elem)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if elem.Id == id {
+			return false
+		}
+	}
+	return true
 }
